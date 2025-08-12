@@ -2,12 +2,17 @@ package org.firstinspires.ftc.teamcode.controllers;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-abstract public class RobotTaskTimed extends RobotTaskImpl {
+public class TimedTask extends RobotTaskImpl {
 
-    private RobotTaskTimed() {}
+    TimedTaskListener _listener;
 
-    RobotTaskTimed(long inDuration) {
+    public interface TimedTaskListener {
+        void execute();
+    }
+
+    public TimedTask(long inDuration, TimedTaskListener _listener) {
         _duration = inDuration;
+        this._listener = _listener;
     }
 
     long _startTime = 0;
@@ -15,8 +20,12 @@ abstract public class RobotTaskTimed extends RobotTaskImpl {
 
     @Override
     public void execute(Telemetry telemetry) {
-        if(_startTime == 0) {
+        if (_startTime == 0) {
             _startTime = System.currentTimeMillis();
+        }
+
+        if (!isComplete()) {
+            _listener.execute();
         }
     }
 
@@ -27,10 +36,10 @@ abstract public class RobotTaskTimed extends RobotTaskImpl {
 
     @Override
     public boolean isRunning() {
-        if(isComplete()) {
+        if (isComplete()) {
             return false;
         } else {
-            return _startTime > 0;
+            return hasStarted();
         }
     }
 
@@ -41,7 +50,7 @@ abstract public class RobotTaskTimed extends RobotTaskImpl {
 
     @Override
     public boolean isComplete() {
-        if(_startTime == 0) {
+        if (!hasStarted()) {
             return false;
         } else {
             long currentTime = System.currentTimeMillis();

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.controllers;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class ExecuteOnceTask extends RobotTaskTimed {
+public class ExecuteOnceTask extends RobotTaskImpl {
 
     public interface ExecuteListener {
         void execute();
@@ -12,25 +12,27 @@ public class ExecuteOnceTask extends RobotTaskTimed {
     String _name;
     boolean _executed = false;
 
-    private ExecuteOnceTask() {
-        super(0);
-        _listener = null;
+    public ExecuteOnceTask(ExecuteListener inListener) {
+        _listener = inListener;
     }
 
-    public ExecuteOnceTask(ExecuteListener inListener, String name) {
-        super(0);
-        _listener = inListener;
-        _name = name;
+    public boolean isBlocking() {
+        return true;
+    }
+
+    @Override
+    public boolean hasStarted() {
+        return isComplete();
+    }
+
+    public boolean isRunning() {
+        return false;
     }
 
     @Override
     public void execute(Telemetry telemetry) {
-        super.execute(telemetry);
-
-        if(!_executed) {
-            if (_listener != null) {
-                _listener.execute();
-            }
+        if (isComplete()) {
+            _listener.execute();
         }
         _executed = true;
     }

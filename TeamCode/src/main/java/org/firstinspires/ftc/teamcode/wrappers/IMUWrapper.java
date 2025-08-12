@@ -9,78 +9,85 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 /**
  * Minimal IMU wrapper for the Control Hub's universal IMU (SDK 8.1+).
  *
- * <p>Core functionality: retrieves the robot's heading (yaw) with a fixed offset. Defaults: -
- * headingOffset = PI/2 radians (90°) - getHeading() returns radians normalized to [-PI, PI] -
- * getHeadingDegrees() returns degrees normalized to [-180, 180]
+ * <p>
+ * Core functionality: retrieves the robot's heading (yaw) with a fixed offset. Defaults: - headingOffset
+ * = PI/2 radians (90°) - getHeading() returns radians normalized to [-PI, PI] - getHeadingDegrees()
+ * returns degrees normalized to [-180, 180]
  */
 public class IMUWrapper {
 
-    private final IMU imu;
-    private double headingOffset = Math.PI / 2; // default 90° offset
+  private final IMU imu;
+  private double headingOffset = Math.PI / 2; // default 90° offset
 
-    /**
-     * Initializes the IMU with logo up / USB forward orientation.
-     *
-     * @param hardwareMap the OpMode's hardwareMap
-     * @param imuName the configured name of the IMU
-     */
-    public IMUWrapper(HardwareMap hardwareMap, String imuName) {
-        imu = hardwareMap.get(IMU.class, imuName);
-        RevHubOrientationOnRobot orientation =
-                new RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
-        IMU.Parameters params = new IMU.Parameters(orientation);
-        imu.initialize(params);
-    }
+  /**
+   * Initializes the IMU with logo up / USB forward orientation.
+   *
+   * @param hardwareMap the OpMode's hardwareMap
+   * @param imuName     the configured name of the IMU
+   */
 
-    /**
-     * Returns the robot's heading in radians, applying the fixed offset and normalizing to [-PI,
-     * PI].
-     *
-     * @return heading in radians
-     */
-    public double getHeading() {
-        double raw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        return normalizeRadians(raw + headingOffset);
-    }
+  public IMUWrapper(HardwareMap hardwareMap) {
+    this(hardwareMap, "imu");
+  }
 
-    /**
-     * Returns the robot's heading in degrees, applying the fixed offset and normalizing to [-180,
-     * 180].
-     *
-     * @return heading in degrees
-     */
-    public double getHeadingDegrees() {
-        double raw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-        return normalizeDegrees(raw + Math.toDegrees(headingOffset));
-    }
+  public IMUWrapper(HardwareMap hardwareMap, String imuName) {
+    imu = hardwareMap.get(IMU.class, imuName);
+    RevHubOrientationOnRobot orientation = new RevHubOrientationOnRobot(
+        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+    IMU.Parameters params = new IMU.Parameters(orientation);
+    imu.initialize(params);
+  }
 
-    /**
-     * Sets a custom heading offset in radians.
-     *
-     * @param offsetRadians new offset to add to raw heading
-     */
-    public void setHeadingOffset(double offsetRadians) {
-        this.headingOffset = offsetRadians;
-    }
+  /**
+   * Returns the robot's heading in radians, applying the fixed offset and normalizing to [-PI, PI].
+   *
+   * @return heading in radians
+   */
+  public double getHeading() {
+    double raw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+    return normalizeRadians(raw + headingOffset);
+  }
 
-    /** Resets the heading offset back to the default PI/2 radians (90°). */
-    public void resetHeadingOffset() {
-        this.headingOffset = Math.PI / 2;
-    }
+  /**
+   * Returns the robot's heading in degrees, applying the fixed offset and normalizing to [-180, 180].
+   *
+   * @return heading in degrees
+   */
+  public double getHeadingDegrees() {
+    double raw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+    return normalizeDegrees(raw + Math.toDegrees(headingOffset));
+  }
 
-    // Normalize angle to [-PI, PI]
-    private double normalizeRadians(double angle) {
-        while (angle <= -Math.PI) angle += 2 * Math.PI;
-        while (angle > Math.PI) angle -= 2 * Math.PI;
-        return angle;
-    }
+  /**
+   * Sets a custom heading offset in radians.
+   *
+   * @param offsetRadians new offset to add to raw heading
+   */
+  public void setHeadingOffset(double offsetRadians) {
+    this.headingOffset = offsetRadians;
+  }
 
-    // Normalize angle to [-180, 180]
-    private double normalizeDegrees(double angle) {
-        while (angle <= -180) angle += 360;
-        while (angle > 180) angle -= 360;
-        return angle;
-    }
+  /** Resets the heading offset back to the default PI/2 radians (90°). */
+  public void resetHeadingOffset() {
+    this.headingOffset = Math.PI / 2;
+  }
+
+  // Normalize angle to [-PI, PI]
+  private double normalizeRadians(double angle) {
+    while (angle <= -Math.PI)
+      angle += 2 * Math.PI;
+    while (angle > Math.PI)
+      angle -= 2 * Math.PI;
+    return angle;
+  }
+
+  // Normalize angle to [-180, 180]
+  private double normalizeDegrees(double angle) {
+    while (angle <= -180)
+      angle += 360;
+    while (angle > 180)
+      angle -= 360;
+    return angle;
+  }
 }

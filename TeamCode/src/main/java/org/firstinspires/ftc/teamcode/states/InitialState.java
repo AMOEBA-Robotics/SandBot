@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.states;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.controllers.RobotTaskSeries;
+import org.firstinspires.ftc.teamcode.controllers.SequentialTask;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.interfaces.IRobot;
 import org.firstinspires.ftc.teamcode.wrappers.JoystickWrapper;
@@ -19,7 +19,7 @@ public class InitialState extends BaseState {
             // robot.setServoPosition("servo1", 0.5);
             // robot.setMotorTargetPosition("motor1", 0);
         } else {
-            RobotTaskSeries resetSeries = new RobotTaskSeries();
+            SequentialTask resetSeries = new SequentialTask();
             // resetSeries.add(createServoTask(robot, "servo1", 0.5, 1000, "Reset Servo", true));
             // resetSeries.add(createMotorTask(robot, "motor1", 0, 1000, "Reset Motor", false));
             taskArrayList.add(resetSeries);

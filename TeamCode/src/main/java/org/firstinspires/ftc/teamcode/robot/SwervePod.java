@@ -7,12 +7,16 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
+import com.ThermalEquilibrium.homeostasis.Controllers.Feedback.AngleController;
+import com.ThermalEquilibrium.homeostasis.Controllers.Feedback.PIDEx;
+import com.ThermalEquilibrium.homeostasis.Parameters.PIDCoefficientsEx;
+
 public class SwervePod {
   private final AnalogInput servoPodInput;
   private final CRServo servoPod;
   private final DcMotor motor;
 
-  private final PIDFController anglePIDF;
+  private final PIDEx anglePID;
 
   private final double angleOffset;
 
@@ -21,31 +25,39 @@ public class SwervePod {
 
   private boolean powerReversed = false;
 
-  public SwervePod(String[] hwNames, HardwareMap hardwareMap, PIDFCoefficients pidfCoefficients, boolean reversed, double angleOffset, double xOffset, double yOffset) {
+  public SwervePod(String servoName, String inputName, String motorName, HardwareMap hardwareMap,
+      PIDCoefficientsEx pidCoefficients, boolean reversed, double angleOffset, double[] offsets) {
+    this(servoName, inputName, motorName, hardwareMap, pidCoefficients, reversed, angleOffset,
+        offsets[0], offsets[1]);
+  }
+
+  public SwervePod(String servoName, String inputName, String motorName, HardwareMap hardwareMap,
+      PIDCoefficientsEx pidCoefficients, boolean reversed, double angleOffset, double xOffset,
+      double yOffset) {
     this.xOffset = xOffset;
     this.yOffset = yOffset;
 
-    this.servoPod = hardwareMap.get(CRServo.class, hwNames[0]);
-    this.servoPodInput = hardwareMap.get(AnalogInput.class, hwNames[1]);
-    this.motor = hardwareMap.get(DcMotor.class, hwNames[2]);
+    this.servoPod = hardwareMap.get(CRServo.class, servoName);
+    this.servoPodInput = hardwareMap.get(AnalogInput.class, inputName);
+    this.motor = hardwareMap.get(DcMotor.class, motorName);
 
     this.angleOffset = angleOffset;
 
-    this.anglePIDF = new PIDFController(pidfCoefficients.p, pidfCoefficients.i, pidfCoefficients.d, pidfCoefficients.f);
+    this.anglePID = new PIDEx(pidCoefficients);
 
     this.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    if(reversed) this.motor.setDirection(DcMotorSimple.Direction.REVERSE);
+    if (reversed)
+      this.motor.setDirection(DcMotorSimple.Direction.REVERSE);
   }
 
   public void move(double targetAngle, double power) {
     double position = (servoPodInput.getVoltage() / 3.3 * 360) + angleOffset;
 
-    double pidf = anglePIDF.calculateAngular(position, targetAngle);
+    double pidf = anglePID.calculate(targetAngle, position);
     servoPod.setPower(Math.max(-1.0, Math.min(pidf, 1.0)));
 
-
     if (position >= 90 && position <= 270) {
-      if(!powerReversed) {
+      if (!powerReversed) {
         power *= -1;
         powerReversed = true;
       }
@@ -56,6 +68,11 @@ public class SwervePod {
     motor.setPower(power);
   }
 
-  public double getYOffset() {return yOffset;}
-  public double getXOffset() {return xOffset;}
+  public double getYOffset() {
+    return yOffset;
+  }
+
+  public double getXOffset() {
+    return xOffset;
+  }
 }
