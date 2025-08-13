@@ -15,7 +15,10 @@ public class SwerveDrive implements IDrive {
   private SwervePod[] pods;
   private IMUWrapper imu;
 
-  PIDCoefficientsEx swervePid = new PIDCoefficientsEx(.1, 0, 0, 99999, 0, 1);
+  PIDCoefficientsEx swervePid1 = new PIDCoefficientsEx(.5, 0, 1, 99999, 0, 1);
+  PIDCoefficientsEx swervePid2 = new PIDCoefficientsEx(.5, 0, 1, 99999, 0, 1);
+  PIDCoefficientsEx swervePid3 = new PIDCoefficientsEx(.5, 0, 1, 99999, 0, 1);
+  PIDCoefficientsEx swervePid4 = new PIDCoefficientsEx(.5, 0, 1, 99999, 0, 1);
 
   /**
    * Constructs a SwerveDrive with the specified pods.
@@ -29,13 +32,13 @@ public class SwerveDrive implements IDrive {
   public SwerveDrive(HardwareMap hardwareMap, IMUWrapper imu, double[] pod1Offsets, double[] pod2Offsets,
       double[] pod3Offsets, double[] pod4Offsets) {
     pods = new SwervePod[4];
-    pods[0] = new SwervePod("swerveServo1", "swerveInput1", "swerveMotor1", hardwareMap, swervePid,
+    pods[0] = new SwervePod("swerveServo1", "swerveInput1", "swerveMotor1", hardwareMap, swervePid1,
         false, 0, pod1Offsets);
-    pods[1] = new SwervePod("swerveServo2", "swerveInput2", "swerveMotor2", hardwareMap, swervePid,
+    pods[1] = new SwervePod("swerveServo2", "swerveInput2", "swerveMotor2", hardwareMap, swervePid2,
         false, 0, pod2Offsets);
-    pods[2] = new SwervePod("swerveServo3", "swerveInput3", "swerveMotor3", hardwareMap, swervePid,
+    pods[2] = new SwervePod("swerveServo3", "swerveInput3", "swerveMotor3", hardwareMap, swervePid3,
         false, 0, pod3Offsets);
-    pods[3] = new SwervePod("swerveServo4", "swerveInput4", "swerveMotor4", hardwareMap, swervePid,
+    pods[3] = new SwervePod("swerveServo4", "swerveInput4", "swerveMotor4", hardwareMap, swervePid4,
         false, 0, pod4Offsets);
     this.imu = imu;
   }
