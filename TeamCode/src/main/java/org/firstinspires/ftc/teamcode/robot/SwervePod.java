@@ -30,17 +30,19 @@ public class SwervePod {
   // REV analog reference voltage (0–3.3 V)
   private static final double ANALOG_REF_V = 3.3;
 
+//  Telemetry telemetry;
+
   // ------------ Constructors ------------
   public SwervePod(String servoName, String inputName, String motorName, HardwareMap hardwareMap,
       PIDCoefficientsEx pidCoefficients, boolean driveReversed, double angleOffsetDeg,
-      double[] offsets) {
+      double[] offsets, Telemetry telemetry) {
     this(servoName, inputName, motorName, hardwareMap, pidCoefficients, driveReversed, angleOffsetDeg,
-        offsets[0], offsets[1]);
+        offsets[0], offsets[1], telemetry);
   }
 
   public SwervePod(String servoName, String inputName, String motorName, HardwareMap hardwareMap,
       PIDCoefficientsEx pidCoefficients, boolean driveReversed, double angleOffsetDeg, double xOffset,
-      double yOffset) {
+      double yOffset, Telemetry telemetry) {
     this.turnServo = hardwareMap.get(CRServo.class, servoName);
     this.turnEncoder = hardwareMap.get(AnalogInput.class, inputName);
     this.driveMotor = hardwareMap.get(DcMotor.class, motorName);
@@ -50,16 +52,13 @@ public class SwervePod {
     this.xOffset = xOffset;
     this.yOffset = yOffset;
 
+    this.telemetry = telemetry;
+
     this.servoLabel = servoName;
 
     driveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     if (driveReversed)
       driveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-  }
-
-  public SwervePod setTelemetry(Telemetry telemetry) {
-    this.telemetry = telemetry;
-    return this;
   }
 
   // ------------ Public API ------------
@@ -68,8 +67,9 @@ public class SwervePod {
    */
   public void move(double targetAngleDeg, double drivePower) {
     // Current absolute angle from encoder (deg), corrected by calibration offset
+    telemetry.addData("Raw Input Angle ", Math.toDegrees(targetAngleDeg));
     double actualDeg = normalize0To360(getRawAngleDeg() + angleOffsetDeg);
-    double desiredDeg = normalize0To360(targetAngleDeg);
+    double desiredDeg = normalize0To360(Math.toDegrees(targetAngleDeg));
 
     // Shortest-path error in [-180, 180]
     double error = shortestAngleToTarget(actualDeg, desiredDeg);
@@ -85,7 +85,7 @@ public class SwervePod {
     double setpointDeg = actualDeg + error;
 
     // PIDEx.calculate(setpoint, measurement) -> servo command; clamp to [-1, 1]
-    double turnPower = clamp(turnPID.calculate(setpointDeg, actualDeg), -1.0, 1.0);
+    double turnPower = -clamp(turnPID.calculate(setpointDeg, actualDeg), -1.0, 1.0);
     turnServo.setPower(turnPower);
 
     // Drive motor after finalizing direction/flip logic

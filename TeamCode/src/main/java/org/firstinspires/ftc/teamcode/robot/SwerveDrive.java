@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.robot;
 
 import com.ThermalEquilibrium.homeostasis.Parameters.PIDCoefficientsEx;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -10,15 +11,18 @@ import org.firstinspires.ftc.teamcode.robot.SwervePod;
 import org.firstinspires.ftc.teamcode.robot.Vector;
 import org.firstinspires.ftc.teamcode.wrappers.IMUWrapper;
 import org.firstinspires.ftc.teamcode.wrappers.JoystickWrapper;
-
+@Config
 public class SwerveDrive implements IDrive {
   private SwervePod[] pods;
   private IMUWrapper imu;
 
-  PIDCoefficientsEx swervePid1 = new PIDCoefficientsEx(.5, 0, 1, 99999, 0, 1);
-  PIDCoefficientsEx swervePid2 = new PIDCoefficientsEx(.5, 0, 1, 99999, 0, 1);
-  PIDCoefficientsEx swervePid3 = new PIDCoefficientsEx(.5, 0, 1, 99999, 0, 1);
-  PIDCoefficientsEx swervePid4 = new PIDCoefficientsEx(.5, 0, 1, 99999, 0, 1);
+  public static double kP = 0.005;
+  public static double kD = 0.001;
+
+  PIDCoefficientsEx swervePid1 = new PIDCoefficientsEx(kP, 0, kD, 99999, 0, 1);
+  PIDCoefficientsEx swervePid2 = new PIDCoefficientsEx(kP, 0, kD, 99999, 0, 1);
+  PIDCoefficientsEx swervePid3 = new PIDCoefficientsEx(kP, 0, kD, 99999, 0, 1);
+  PIDCoefficientsEx swervePid4 = new PIDCoefficientsEx(kP, 0, kD, 99999, 0, 1);
 
   /**
    * Constructs a SwerveDrive with the specified pods.
@@ -30,16 +34,16 @@ public class SwerveDrive implements IDrive {
    * @param pod4Offsets Offsets for the fourth pod (xOffset, yOffset).
    */
   public SwerveDrive(HardwareMap hardwareMap, IMUWrapper imu, double[] pod1Offsets, double[] pod2Offsets,
-      double[] pod3Offsets, double[] pod4Offsets) {
+      double[] pod3Offsets, double[] pod4Offsets, Telemetry telemetry) {
     pods = new SwervePod[4];
     pods[0] = new SwervePod("swerveServo1", "swerveInput1", "swerveMotor1", hardwareMap, swervePid1,
-        false, 0, pod1Offsets);
+        false, 0, pod1Offsets, telemetry);
     pods[1] = new SwervePod("swerveServo2", "swerveInput2", "swerveMotor2", hardwareMap, swervePid2,
-        false, 0, pod2Offsets);
+        false, 0, pod2Offsets, telemetry);
     pods[2] = new SwervePod("swerveServo3", "swerveInput3", "swerveMotor3", hardwareMap, swervePid3,
-        false, 0, pod3Offsets);
+        false, 0, pod3Offsets, telemetry);
     pods[3] = new SwervePod("swerveServo4", "swerveInput4", "swerveMotor4", hardwareMap, swervePid4,
-        false, 0, pod4Offsets);
+        false, 0, pod4Offsets, telemetry);
     this.imu = imu;
   }
 
@@ -65,6 +69,7 @@ public class SwerveDrive implements IDrive {
       Vector rawTrans = new Vector(x, y);
       Vector translation = rawTrans.getMagnitude() < 0.05 ? new Vector(0, 0)
           : rawTrans.rotate(-imu.getHeading()).multiply(speed);
+      telemetry.addData("IMU Heading", imu.getHeadingDegrees());
       Vector rotation = (new Vector(-pod.getYOffset(), pod.getXOffset())).multiply(rx); // Right stick
                                                                                         // input
       podVectors[podNum] = translation.add(rotation);

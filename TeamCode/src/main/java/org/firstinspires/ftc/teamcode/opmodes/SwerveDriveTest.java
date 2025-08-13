@@ -15,12 +15,14 @@ public class SwerveDriveTest extends LinearOpMode {
   @Override
   public void runOpMode() {
     swerveDrive = new SwerveDrive(hardwareMap, new IMUWrapper(hardwareMap), new double[] { 5, 6 },
-        new double[] { -5, 6 }, new double[] { 5, -6 }, new double[] { -5, -6 });
+        new double[] { -5, 6 }, new double[] { 5, -6 }, new double[] { -5, -6 }, telemetry);
+
+    joystickWrapper = new JoystickWrapper(gamepad1, gamepad2);
 
     waitForStart();
 
     while (opModeIsActive()) {
-      swerveDrive.update(telemetry, new JoystickWrapper(gamepad1, null), 1.0, 1.0);
+      swerveDrive.update(telemetry, joystickWrapper, 1.0, 1.0);
       telemetry.update();
     }
   }

@@ -1989,3 +1989,15 @@ local.properties
 local.properties
 local.properties
 *.properties
+*.bin
+*.lock
+*.dex
+*.uniqueId12
+*.uniqueId2
+*.uniqueId9
+/FtcRobotController/build
+/TeamCode/build
+/FtcRobotController/build
+/FtcRobotController/build
+/.gradle
+/.gradle
