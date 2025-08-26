@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.robot.SwervePod;
 import org.firstinspires.ftc.teamcode.robot.Vector;
 import org.firstinspires.ftc.teamcode.wrappers.IMUWrapper;
 import org.firstinspires.ftc.teamcode.wrappers.JoystickWrapper;
+
 @Config
 public class SwerveDrive implements IDrive {
   private SwervePod[] pods;
@@ -70,7 +71,10 @@ public class SwerveDrive implements IDrive {
       Vector translation = rawTrans.getMagnitude() < 0.05 ? new Vector(0, 0)
           : rawTrans.rotate(-imu.getHeading()).multiply(speed);
       telemetry.addData("IMU Heading", imu.getHeadingDegrees());
-      Vector rotation = (new Vector(-pod.getYOffset(), pod.getXOffset())).multiply(rx); // Right stick
+      Vector rotation = (new Vector(-pod.getYOffset(), pod.getXOffset()))
+
+      rotation = rotation.divide(rotation.getMagnitude() == 0 ? 1 : rotation.getMagnitude()) // Normalize
+      rotation = rotation.multiple(rx);
                                                                                         // input
       podVectors[podNum] = translation.add(rotation);
     }
